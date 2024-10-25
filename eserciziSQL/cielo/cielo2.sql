@@ -89,4 +89,4 @@ AVG(v.durataMinuti) > 360
 SELECT v.comp AS compagnia
 FROM Volo v
 GROUP BY v.comp
-HAVING  MIN(v.durataMinuti) > 100
+HAVING  MIN(v.durataMinuti) > 100 
