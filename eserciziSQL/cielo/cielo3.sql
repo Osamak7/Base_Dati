@@ -33,12 +33,26 @@ SELECT citta, numero_arrivi
 FROM ArriviPerCitta
 WHERE numero_arrivi > (SELECT AVG(numero_arrivi) FROM ArriviPerCitta);
 
-###########################
+#4
+WITH pita as (
+    select v.comp as compagnia, avg(v.durataminuti) as durata_minuti
+	from ArrPart ar,  LuogoAeroporto larp, volo v 
+	where v.codice = ar.codice
+	and ar.partenza = larp.aeroporto
+	and larp.nazione = 'Italy'
+	group by v.comp
 
-
-
-
-
+),
+media_tot as ( 
+    SELECT avg(v.durataMinuti) as med_voli
+    FROM LuogoAeroporto la , ArrPart ap , Volo v
+    WHERE la.aeroporto = ap.partenza
+    AND v.codice = ap.codice
+    AND la.nazione = 'Italy'
+    )
+SELECT p.compagnia  , mt.med_voli
+FROM pita as p , media_tot as mt
+WHERE p.durata_minuti < mt.med_voli
 
 
 #5
