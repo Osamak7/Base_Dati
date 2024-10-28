@@ -1,12 +1,14 @@
 #1
-select distinct p.id , p.nome , p.cognome
-from persona p 
-join assenza ass on ass.persona = p.id
-full join Attivitanonprogettuale anp on anp.giorno = ass.giorno 
-full join AttivitaProgetto atp on atp.giorno = ass.giorno 
-group by p.id , p.nome, p.cognome
-having count (anp.giorno) = 0
-and count (atp.giorno)= 0
+select p.id, p.nome, p.cognome
+from persona p
+EXCEPT 
+	(select p.id, p.nome, p.cognome
+	from persona p  
+	join assenza ass on ass.persona = p.id
+	left join AttivitaProgetto atp on atp.giorno = ass.giorno and ass.persona = atp.persona
+	left join AttivitaNonProgettuale anp on anp.giorno = ass.giorno and ass.persona = anp.persona
+	where atp.id is not null or anp.id is not null)
+order by id asc
 
 #2
 WITH nPeg AS (
@@ -48,6 +50,7 @@ from persona p , attivitaProgetto atp , media_sup ms
 where p.id = atp.persona and ms.id = atp.progetto
 
 #5
+#v1.1
 WITH media_budget AS (
     SELECT AVG(p.budget) AS budget, AVG(atp.oredurata) AS media
     FROM progetto p
@@ -61,6 +64,20 @@ WHERE pg.budget < mb.budget
 AND atp.oredurata > mb.media
 AND atp.tipo = 'Ricerca e Sviluppo'
 
+#v1.2
+WITH media_budget AS (
+    SELECT AVG(p.budget) AS budget, AVG(atp.oredurata) AS media
+    FROM progetto p
+    JOIN Attivitaprogetto atp ON atp.progetto = p.id
+)
+SELECT DISTINCT pg.id, pg.nome
+FROM progetto pg
+JOIN media_budget mb ON TRUE
+JOIN Attivitaprogetto atp ON atp.progetto = pg.id
+WHERE pg.budget < mb.budget
+AND atp.oredurata > mb.media
+AND atp.tipo::text LIKE 'Ricerca%'
+order by pg.id asc
 
 
 
