@@ -28,19 +28,16 @@ def cerca_vendita():
     
     query = "SELECT * FROM case_in_vendita WHERE 1=1"
     
+    params = [] # su parametri appendiamo i valori che si sostituiranno alle %s nella query 
     if stato:
         query += " AND stato = %s"
+        params.append(stato)
     if filiale:
         query += " AND filiale_proponente = %s"
+        params.append(filiale)
     
     conn = get_db_connection()
     cursor = conn.cursor()
-    
-    params = [] # su parametri appendiamo i valori che si sostituiranno alle %s nella query 
-    if stato:
-        params.append(stato)
-    if filiale:
-        params.append(filiale)
     
     cursor.execute(query, params)
     result = cursor.fetchall()
@@ -64,9 +61,9 @@ def vendi_casa():
     
     conn = get_db_connection()
     cursor = conn.cursor()
-    
+    #per evitare l'sql injection 
     cursor.execute("""
-        INSERT INTO vendite_casa (catastale, data_vendita, filiale_proponente, filiale_venditrice, prezzo_vendita)
+        INSERT INTO vendite_casa (catastale, data_vendita, filiale_proponente, filiale_venditrice, prezzo_vendita) 
         VALUES (%s, %s, %s, %s, %s)
     """, (catastale, data_vendita, filiale_proponente, filiale_venditrice, prezzo_vendita))
     
